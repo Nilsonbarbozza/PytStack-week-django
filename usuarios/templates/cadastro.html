@@ -13,12 +13,23 @@
     <h2 class="mt-4 text-2xl/9 font-bold tracking-tight text-gray-100">Crie sua conta</h2>
     <p class="mt-2 text-sm/6 text-gray-500">
     Já tem uma conta?
-        <a href="" class="font-semibold text-indigo-300 hover:text-indigo-200">Faça login</a>
+        <a href="{% url 'login'%}" class="font-semibold text-indigo-300 hover:text-indigo-200">Faça login</a>
     </p>
     </div>
 
     <div class="mt-8">
         <div>
+            {% if messages %}
+            {% for message in messages %}
+            <div class="rounded-md {{message.tags}} mt-4">
+            <div class="flex">
+            <div class="ml-3 py-4">
+            {{message}}
+            </div>
+            </div>
+            </div>
+            {% endfor %}
+           {% endif %}     
         <form action="{% url 'cadastro'%}" method="POST" class="space-y-6"> {% csrf_token %}
         <div>
         <label for="email" class="block text-sm/6 font-medium text-gray-200">Username</label>
