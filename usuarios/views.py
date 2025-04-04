@@ -10,7 +10,7 @@ def cadastro(request):
    if request.method == 'GET':
       return render(request, 'cadastro.html')
    else:
-      # Valores pegos do meu forms
+      # Valores GET do meu forms
       username = request.POST.get('username')
       senha = request.POST.get('senha')
       confirmar_senha = request.POST.get('confirmar_senha')
