@@ -3,4 +3,4 @@ from django.http import HttpResponse
 
 def mentorados(request):
     if request.method == 'GET':
-        return render(request, 'teste.html')
+        return render(request, 'mentorados.html')
