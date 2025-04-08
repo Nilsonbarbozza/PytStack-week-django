@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect
 from datetime import datetime, timedelta
-from .models import DisponibilidadeHorarios, Reuniao
+from .models import DisponibilidadeHorarios, Reuniao, Tarefa, Upload
 from django.contrib import messages
 from django.contrib.messages import constants
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from mentorados.models import Mentorados
 from .auth import valida_token
 from babel.dates import format_date
 import locale
+from django.views.decorators.csrf import csrf_exempt
+
 
 locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
@@ -125,4 +127,68 @@ def agendar_reuniao(request):
 
         messages.add_message(request, constants.SUCCESS, 'Reunião agendada com sucesso.')
         return redirect('escolher_dia')
+
+def tarefa(request, id):
+    mentorado = Mentorados.objects.get(id=id)
+    if mentorado.user != request.user:
+        raise Http404()
     
+    if request.method == 'GET':
+        tarefas = Tarefa.objects.filter(mentorado=mentorado)
+        
+        return render(request, 'tarefa.html', {'mentorado': mentorado, 'tarefas': tarefas})    
+    
+    else:
+        tarefa = request.POST.get('tarefa')
+
+        t = Tarefa(
+        mentorado=mentorado,
+        tarefa=tarefa,
+        )
+        t.save()
+
+        return redirect(f'/reunioes/tarefa/{mentorado.id}')
+
+def upload(request, id):
+    mentorado = Mentorados.objects.get(id=id)
+    
+    
+    if mentorado.user != request.user:
+        raise Http404()
+    
+    
+    
+    video = request.FILES.get('video')
+    upload = Upload(
+        mentorado=mentorado,
+        video=video
+    )
+    
+    upload.save()
+    return redirect(f'/reunioes/tarefa/{mentorado.id}')
+
+def tarefa_mentorado(request):
+    mentorado = valida_token(request.COOKIES.get('auth_token'))
+    if not mentorado:
+        return redirect('auth_mentorado')
+    
+    if request.method == 'GET':
+        videos = Upload.objects.filter(mentorado=mentorado)
+        tarefas = Tarefa.objects.filter(mentorado=mentorado)
+    
+    return render(request, 'tarefa_mentorado.html', {'mentorado': mentorado, 'videos': videos, 'tarefas': tarefas})
+
+
+@csrf_exempt
+def tarefa_alterar(request, id):
+    mentorado = valida_token(request.COOKIES.get('auth_token'))
+    if not mentorado:
+        return redirect('auth_mentorado')
+
+    tarefa = Tarefa.objects.get(id=id)
+    if mentorado != tarefa.mentorado:
+        raise Http404()
+    tarefa.realizada = not tarefa.realizada
+    tarefa.save()
+
+    return HttpResponse('teste')    
