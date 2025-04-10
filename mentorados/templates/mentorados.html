@@ -133,7 +133,8 @@ Aula 1 2
         {%for mentorado in mentorados %}
             <tr>
                 <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
-                <div class="flex items-center gap-x-4">
+                    <a href="http://127.0.0.1:8000/reunioes/tarefa/{{mentorado.id}}">
+                <div class="flex items-center gap-x-4">   
                 <img src="{{mentorado.foto.url}}" alt="" class="size-8 rounded-full bg-gray-800">
                 <div class="truncate text-sm/6 font-medium text-white">{{mentorado.nome}}</div>
             </div>
